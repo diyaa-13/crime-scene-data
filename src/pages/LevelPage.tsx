@@ -21,6 +21,7 @@ const LevelPage = () => {
   const [queryResult, setQueryResult] = useState<any>(null);
   const [isCorrect, setIsCorrect] = useState(false);
   const [detectiveName, setDetectiveName] = useState("");
+  const [outputData, setOutputData] = useState<any[]>([]);
 
   const levelIndex = parseInt(levelNum || "1") - 1;
   const currentLevel = levels[levelIndex];
@@ -53,6 +54,7 @@ const LevelPage = () => {
       if (normalizedUserQuery === normalizedExpectedQuery) {
         setIsCorrect(true);
         setQueryResult({ success: true, message: "Query executed successfully!" });
+        setOutputData(currentLevel.sampleOutput);
         toast({
           title: "✅ Correct!",
           description: `Detective ${detectiveName}: Good. Let's move on...`,
@@ -60,6 +62,7 @@ const LevelPage = () => {
       } else {
         setIsCorrect(false);
         setQueryResult({ success: false, message: "Query doesn't match expected output" });
+        setOutputData([]);
         toast({
           title: "❌ Not quite right",
           description: "DataBot: That didn't quite work. Try again!",
@@ -81,6 +84,7 @@ const LevelPage = () => {
       setQuery("");
       setQueryResult(null);
       setIsCorrect(false);
+      setOutputData([]);
     } else {
       navigate("/final");
     }
@@ -89,10 +93,63 @@ const LevelPage = () => {
   const handleViewTableData = (tableName: string) => {
     setSelectedTable(tableName);
     setShowTableData(true);
-    // In production, fetch actual table data
-    setTableData([
-      { column1: "Sample", column2: "Data", column3: "Here" }
-    ]);
+    
+    // Mock data for each table
+    const tableDataMap: Record<string, any[]> = {
+      persons: [
+        { person_id: 1, name: 'Maya Archer', role: 'Reporter' },
+        { person_id: 2, name: 'Noah Reed', role: 'CTO' },
+        { person_id: 3, name: 'Olivia Park', role: 'Security Lead' },
+        { person_id: 4, name: 'Liam Carter', role: 'DevOps' },
+        { person_id: 5, name: 'Ava Brooks', role: 'HR Manager' },
+        { person_id: 6, name: 'Ethan Price', role: 'Intern' },
+        { person_id: 7, name: 'Isla Gomez', role: 'Data Scientist' },
+        { person_id: 8, name: 'Mason Cole', role: 'Product Manager' },
+      ],
+      rooms: [
+        { room_id: 1, name: 'M3', floor: 3 },
+        { room_id: 2, name: 'ServerRoom', floor: 2 },
+        { room_id: 3, name: 'Cafeteria', floor: 1 },
+        { room_id: 4, name: 'Lobby', floor: 1 },
+        { room_id: 5, name: 'ConferenceHall', floor: 2 },
+      ],
+      access_logs: [
+        { log_id: 1, person_id: 1, room_id: 1, direction: 'IN', ts: '2025-10-02 00:08:00' },
+        { log_id: 2, person_id: 3, room_id: 4, direction: 'IN', ts: '2025-10-02 00:05:00' },
+        { log_id: 3, person_id: 3, room_id: 1, direction: 'IN', ts: '2025-10-02 00:10:00' },
+        { log_id: 4, person_id: 3, room_id: 1, direction: 'OUT', ts: '2025-10-02 00:20:00' },
+      ],
+      wifi_sessions: [
+        { session_id: 1, device_mac: 'AA:01:02:03:04:01', person_id: 1, ap_name: 'AP-M3', start_ts: '2025-10-02 00:08:00', end_ts: '2025-10-02 00:21:00' },
+        { session_id: 2, device_mac: 'AA:01:02:03:04:02', person_id: 2, ap_name: 'AP-Conf', start_ts: '2025-10-02 00:05:00', end_ts: '2025-10-02 00:30:00' },
+      ],
+      messages: [
+        { msg_id: 1, sender_id: 2, receiver_id: 1, ts: '2025-10-01 23:55:00', channel: 'Chat', text: 'Maya, do not publish the audit note.' },
+        { msg_id: 2, sender_id: 1, receiver_id: 2, ts: '2025-10-01 23:56:00', channel: 'Chat', text: 'Noah, I will verify the sources.' },
+      ],
+      transactions: [
+        { tx_id: 1, person_id: 6, vendor: 'CoffeeVend', amount: 2.50, ts: '2025-10-01 23:46:00', method: 'Cash', note: 'Espresso' },
+        { tx_id: 7, person_id: 7, vendor: 'Supply', amount: 8.00, ts: '2025-10-02 00:02:00', method: 'Card', note: 'Sanitizer' },
+      ],
+      inventory: [
+        { item_id: 1, name: 'Golden Trophy', room_id: 1, weight_kg: 2.00 },
+        { item_id: 3, name: 'Maya Laptop', room_id: 1, weight_kg: 1.50 },
+      ],
+      evidence: [
+        { evidence_id: 1, type: 'Physical', description: 'Trophy with blood marks', found_room_id: 1, ts_found: '2025-10-02 00:25:00' },
+        { evidence_id: 3, type: 'Digital', description: 'CCTV clip missing 00:08-00:15', found_room_id: 15, ts_found: '2025-10-02 00:32:00' },
+      ],
+      alibis: [
+        { alibi_id: 1, person_id: 2, statement_text: 'I was in Conference Hall from 00:05 to 00:30', submitted_ts: '2025-10-02 01:00:00' },
+        { alibi_id: 2, person_id: 3, statement_text: 'I was patrolling the Lobby', submitted_ts: '2025-10-02 01:05:00' },
+      ],
+      cctv_gaps: [
+        { gap_id: 1, room_id: 1, start_ts: '2025-10-02 00:08:00', end_ts: '2025-10-02 00:16:00', reason: 'Signal Loss' },
+        { gap_id: 2, room_id: 2, start_ts: '2025-10-02 00:34:00', end_ts: '2025-10-02 00:42:00', reason: 'Maintenance' },
+      ],
+    };
+    
+    setTableData(tableDataMap[tableName] || []);
   };
 
   if (!currentLevel) {
@@ -203,7 +260,7 @@ const LevelPage = () => {
         {/* Query Result */}
         {queryResult && (
           <Card className={`p-6 fade-in ${isCorrect ? 'bg-primary/10 border-primary' : 'bg-destructive/10 border-destructive'}`}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-4">
               {isCorrect ? (
                 <>
                   <Check className="w-6 h-6 text-primary" />
@@ -222,6 +279,35 @@ const LevelPage = () => {
                 </>
               )}
             </div>
+            
+            {/* Output Table */}
+            {isCorrect && outputData.length > 0 && (
+              <div className="mt-4 border-t border-primary/30 pt-4">
+                <h4 className="text-sm font-semibold text-primary mb-2">QUERY OUTPUT:</h4>
+                <div className="max-h-[300px] overflow-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {Object.keys(outputData[0]).map((key) => (
+                          <TableHead key={key} className="text-primary font-mono">{key}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {outputData.map((row, idx) => (
+                        <TableRow key={idx}>
+                          {Object.values(row).map((value: any, cellIdx) => (
+                            <TableCell key={cellIdx} className="font-mono text-terminal-green">
+                              {value === null ? 'NULL' : String(value)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
           </Card>
         )}
 
@@ -255,24 +341,30 @@ const LevelPage = () => {
             <DialogTitle className="text-2xl neon-text">{selectedTable.toUpperCase()} DATA</DialogTitle>
           </DialogHeader>
           <div className="max-h-[400px] overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-primary">Column 1</TableHead>
-                  <TableHead className="text-primary">Column 2</TableHead>
-                  <TableHead className="text-primary">Column 3</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tableData.map((row, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{row.column1}</TableCell>
-                    <TableCell>{row.column2}</TableCell>
-                    <TableCell>{row.column3}</TableCell>
+            {tableData.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {Object.keys(tableData[0]).map((key) => (
+                      <TableHead key={key} className="text-primary font-mono">{key}</TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {tableData.map((row, idx) => (
+                    <TableRow key={idx}>
+                      {Object.values(row).map((value: any, cellIdx) => (
+                        <TableCell key={cellIdx} className="font-mono">
+                          {value === null ? 'NULL' : String(value)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-muted-foreground">No data available</p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
